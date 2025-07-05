@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67521502419",
+    "project_id": "briout-mt",
+    "storage_bucket": "briout-mt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67521502419:android:edce3966cafb4f9e96c826",
+        "android_client_info": {
+          "package_name": "com.example.briout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcs49sQIu5TJVL-dZ7hasunMgeb66TEOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

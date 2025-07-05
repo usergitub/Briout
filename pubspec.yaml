@@ -1,0 +1,43 @@
+name: briout
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.9
+  country_pickers: ^3.0.1  # Version mise à jour
+  phone_numbers_parser: ^9.0.3  # Version mise à jour
+  logger: ^2.5.0  # Version mise à jour
+  firebase_core: ^3.1.1 # Assurez-vous d'avoir la dernière version
+  firebase_auth: ^5.1.1 # Pour l'authentification
+  cloud_firestore: ^5.0.2 # Pour la base de données
+  pinput: ^4.0.0 # Pour le champ de saisie OTP
+  geolocator: ^12.0.0  # Pour obtenir les coordonnées GPS
+  permission_handler: ^11.3.1 # Pour demander et gérer les permissions (très robuste)cl
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^5.0.0
+
+flutter_icons:
+  android: "adaptive"
+  ios: true
+  image_path: "assets/icons/ic_foreground.png"
+  adaptive_icon_background: "#0165FC"
+  adaptive_icon_foreground: "assets/icons/ic_foreground.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/onboarding1.svg
+    - assets/images/onboarding2.svg
+    - assets/images/onboarding3.svg
+    - assets/images/onboarding4.svg
