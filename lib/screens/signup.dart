@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:country_pickers/country.dart';
-import 'package:country_pickers/country_pickers.dart';
+import 'package:country_picker/country_picker.dart'; // NOUVEL IMPORT
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
 import 'otp.dart';
@@ -17,7 +16,20 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Country _selectedCountry = CountryPickerUtils.getCountryByPhoneCode('225');
+  // On initialise avec les données pour la Côte d'Ivoire
+  Country _selectedCountry = Country(
+    phoneCode: '225',
+    countryCode: 'CI',
+    e164Sc: 0,
+    geographic: true,
+    level: 1,
+    name: 'Côte d\'Ivoire',
+    example: '07xxxxxxxx',
+    displayName: 'Côte d\'Ivoire',
+    displayNameNoCountryCode: 'CI',
+    e164Key: '',
+  );
+
   bool _isPasswordObscured = true;
   bool _isLoading = false;
   Color _nameBorderColor = Colors.grey;
@@ -25,7 +37,6 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _passwordHelperText;
 
   void _handleSignup() async {
-    // CORRECTION : On vérifie le context avant d'utiliser le ScaffoldMessenger
     if (!mounted) return;
 
     if (_nameBorderColor != Colors.green || _passwordBorderColor != Colors.green || _phoneController.text.trim().isEmpty) {
@@ -41,15 +52,11 @@ class _SignupScreenState extends State<SignupScreen> {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       },
       verificationFailed: (FirebaseAuthException e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Erreur : ${e.message}")),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erreur : ${e.message}")));
           setState(() => _isLoading = false);
         }
       },
@@ -69,35 +76,21 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       },
       codeAutoRetrievalTimeout: (String verificationId) {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       },
     );
   }
 
-  void _openCountryPicker(BuildContext context) {
-    showDialog(
+  // NOUVELLE FONCTION pour ouvrir le sélecteur de pays
+  void _openCountryPicker() {
+    showCountryPicker(
       context: context,
-      builder: (context) => Theme(
-        data: Theme.of(context).copyWith(primaryColor: Colors.blue[800]),
-        child: CountryPickerDialog(
-          titlePadding: const EdgeInsets.all(8.0),
-          searchCursorColor: Colors.blue[800],
-          isSearchable: true,
-          title: const Text('Sélectionnez votre pays'),
-          onValuePicked: (Country country) => setState(() => _selectedCountry = country),
-           itemBuilder: (Country country) => Row(
-            children: [
-              CountryPickerUtils.getDefaultFlagImage(country),
-              const SizedBox(width: 8.0),
-              Text("+${country.phoneCode}"),
-              const SizedBox(width: 8.0),
-              Flexible(child: Text(country.name)),
-            ],
-          ),
-        ),
-      ),
+      showPhoneCode: true,
+      onSelect: (Country country) {
+        setState(() {
+          _selectedCountry = country;
+        });
+      },
     );
   }
 
@@ -125,11 +118,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 Text('Créez votre compte pour continuer', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
                 const SizedBox(height: 40),
                 Row(
-                   children: [
+                  children: [
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                         },
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: Colors.blue[800]!),
@@ -160,7 +153,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _nameController,
                   onChanged: (value) {
                     setState(() {
-                      // CORRECTION : Ajout des accolades
                       if (value.trim().isEmpty) {
                         _nameBorderColor = Colors.grey;
                       } else if (value.trim().contains(' ')) {
@@ -183,13 +175,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   children: [
                     InkWell(
-                      onTap: () => _openCountryPicker(context),
+                      onTap: _openCountryPicker, // Appel de la nouvelle fonction
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            CountryPickerUtils.getDefaultFlagImage(_selectedCountry),
+                            // NOUVELLE FAÇON D'AFFICHER LE DRAPEAU
+                            Text(_selectedCountry.flagEmoji, style: const TextStyle(fontSize: 24)),
                             const SizedBox(width: 8),
                             Text("+${_selectedCountry.phoneCode}"),
                             const Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -219,7 +212,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: _isPasswordObscured,
                   onChanged: (value) {
                     setState(() {
-                      // CORRECTION : Ajout des accolades
                       if (value.isEmpty) {
                         _passwordBorderColor = Colors.grey;
                         _passwordHelperText = null;
@@ -256,15 +248,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Suivant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, color: Colors.white),
-                          ],
-                        ),
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Suivant', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, color: Colors.white),
+                            ],
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

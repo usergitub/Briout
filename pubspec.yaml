@@ -1,43 +1,55 @@
 name: briout
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: 'none' 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0' # Version mise à jour pour la compatibilité
 
 dependencies:
   flutter:
     sdk: flutter
+
+  # Paquets de base et UI
   cupertino_icons: ^1.0.8
-  flutter_svg: ^2.0.9
-  country_pickers: ^3.0.1  # Version mise à jour
-  phone_numbers_parser: ^9.0.3  # Version mise à jour
-  logger: ^2.5.0  # Version mise à jour
-  firebase_core: ^3.1.1 # Assurez-vous d'avoir la dernière version
-  firebase_auth: ^5.1.1 # Pour l'authentification
-  cloud_firestore: ^5.0.2 # Pour la base de données
-  pinput: ^4.0.0 # Pour le champ de saisie OTP
-  geolocator: ^12.0.0  # Pour obtenir les coordonnées GPS
-  permission_handler: ^11.3.1 # Pour demander et gérer les permissions (très robuste)cl
+  flutter_svg: ^2.0.10+1
+  pinput: ^4.0.0
+
+  # Paquets pour la connexion/inscription
+  country_picker: ^2.0.26
+  firebase_core: ^2.31.0
+  firebase_auth: ^4.19.0
+  cloud_firestore: ^4.17.0
+  
+  # Paquets pour la carte et la localisation
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
+  http: ^1.2.1
+  geocoding: ^3.0.0
+  geolocator: ^12.0.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.3
-  flutter_lints: ^5.0.0
+  
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
+# Configuration pour les icônes de l'application
 flutter_icons:
   android: "adaptive"
   ios: true
-  image_path: "assets/icons/ic_foreground.png"
+  image_path: "assets/icon/ic_launcher.png"
   adaptive_icon_background: "#0165FC"
-  adaptive_icon_foreground: "assets/icons/ic_foreground.png"
+  adaptive_icon_foreground: "assets/icon/ic_foreground.png"
 
+# Configuration générale de Flutter
 flutter:
   uses-material-design: true
+
+  # Déclaration des assets (fichiers images, etc.)
+  # En déclarant le dossier, vous n'avez pas besoin de lister chaque image.
   assets:
-    - assets/images/onboarding1.svg
-    - assets/images/onboarding2.svg
-    - assets/images/onboarding3.svg
-    - assets/images/onboarding4.svg
+    - assets/images/
+    - assets/icon/

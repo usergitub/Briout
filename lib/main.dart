@@ -1,12 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'screens/onboarding.dart'; // Point d'entrée de l'UI
+import 'package:firebase_auth/firebase_auth.dart'; // Importez FirebaseAuth
+import 'screens/onboarding.dart';
 import 'firebase_options.dart';
+import 'package:briout/main_screen.dart';
 
 void main() async {
-  // Assure que le moteur Flutter est prêt
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialise Firebase pour votre projet
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -23,15 +23,36 @@ class MyApp extends StatelessWidget {
       title: 'Briout',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-        ),
+        useMaterial3: true, // Vous pouvez laisser à true si vous avez remplacé country_pickers
       ),
-      home: const OnboardingScreen(),
+      // On utilise un Widget "AuthWrapper" pour choisir la bonne page
+      home: const AuthWrapper(),
+    );
+  }
+}
+
+// Ce widget écoute les changements d'état d'authentification
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // En attendant la vérification
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        
+        // Si l'utilisateur est connecté (snapshot contient des données)
+        if (snapshot.hasData) {
+          return const MainScreen();
+        }
+        
+        // Si l'utilisateur n'est pas connecté
+        return const OnboardingScreen();
+      },
     );
   }
 }

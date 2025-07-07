@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:country_pickers/country.dart';
-import 'package:country_pickers/country_pickers.dart';
+import 'package:country_picker/country_picker.dart'; // NOUVEL IMPORT
 import 'package:firebase_auth/firebase_auth.dart';
 import 'signup.dart';
 import 'otp.dart';
@@ -13,32 +12,48 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  Country _selectedCountry = CountryPickerUtils.getCountryByPhoneCode('225');
+  // On initialise avec les données pour la Côte d'Ivoire
+  Country _selectedCountry = Country(
+    phoneCode: '225',
+    countryCode: 'CI',
+    e164Sc: 0,
+    geographic: true,
+    level: 1,
+    name: 'Côte d\'Ivoire',
+    example: '07xxxxxxxx',
+    displayName: 'Côte d\'Ivoire',
+    displayNameNoCountryCode: 'CI',
+    e164Key: '',
+  );
+
   final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
 
-  void _openCountryPicker(BuildContext context) {
-    showDialog(
+  // NOUVELLE FONCTION pour ouvrir le sélecteur de pays
+  void _openCountryPicker() {
+    showCountryPicker(
       context: context,
-      builder: (context) => Theme(
-        data: Theme.of(context).copyWith(primaryColor: Colors.blue[800]),
-        child: CountryPickerDialog(
-          titlePadding: const EdgeInsets.all(8.0),
-          searchCursorColor: Colors.blue[800],
-          isSearchable: true,
-          title: const Text('Sélectionnez votre pays'),
-          onValuePicked: (Country country) => setState(() => _selectedCountry = country),
-          itemBuilder: (Country country) => Row(
-            children: [
-              CountryPickerUtils.getDefaultFlagImage(country),
-              const SizedBox(width: 8.0),
-              Text("+${country.phoneCode}"),
-              const SizedBox(width: 8.0),
-              Flexible(child: Text(country.name)),
-            ],
+      countryListTheme: CountryListThemeData(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        ),
+        inputDecoration: InputDecoration(
+          labelText: 'Rechercher',
+          hintText: 'Commencez à taper le nom du pays',
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: const Color(0xFF8C98A8).withAlpha(128),
+            ),
           ),
         ),
       ),
+      onSelect: (Country country) {
+        setState(() {
+          _selectedCountry = country;
+        });
+      },
     );
   }
 
@@ -56,23 +71,27 @@ class _LoginScreenState extends State<LoginScreen> {
     FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) {
-         setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
       },
       verificationFailed: (FirebaseAuthException e) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur : ${e.message}")),
-        );
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Erreur : ${e.message}")),
+          );
+        }
       },
       codeSent: (String verificationId, int? resendToken) {
-        setState(() => _isLoading = false);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OtpScreen(verificationId: verificationId)),
-        );
+        if (mounted) {
+          setState(() => _isLoading = false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OtpScreen(verificationId: verificationId)),
+          );
+        }
       },
       codeAutoRetrievalTimeout: (String verificationId) {
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
       },
     );
   }
@@ -99,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text('Connectez-vous à votre compte', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
                 const SizedBox(height: 40),
                 Row(
-                   children: [
+                  children: [
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {},
@@ -133,13 +152,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     InkWell(
-                      onTap: () => _openCountryPicker(context),
+                      onTap: _openCountryPicker, // Appel de la nouvelle fonction
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            CountryPickerUtils.getDefaultFlagImage(_selectedCountry),
+                            // NOUVELLE FAÇON D'AFFICHER LE DRAPEAU
+                            Text(_selectedCountry.flagEmoji, style: const TextStyle(fontSize: 24)),
                             const SizedBox(width: 8),
                             Text("+${_selectedCountry.phoneCode}"),
                             const Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -172,15 +192,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, color: Colors.white),
-                          ],
-                        ),
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, color: Colors.white),
+                            ],
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
