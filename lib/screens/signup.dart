@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:country_picker/country_picker.dart'; // NOUVEL IMPORT
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:briout/widgets/auth_toggle_button.dart';
 import 'login.dart';
 import 'otp.dart';
 
@@ -16,7 +17,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // On initialise avec les données pour la Côte d'Ivoire
   Country _selectedCountry = Country(
     phoneCode: '225',
     countryCode: 'CI',
@@ -81,7 +81,6 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  // NOUVELLE FONCTION pour ouvrir le sélecteur de pays
   void _openCountryPicker() {
     showCountryPicker(
       context: context,
@@ -105,6 +104,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -113,39 +113,26 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-                Text('Akwaba!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                Text('Akwaba!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.grey[800])),
                 const SizedBox(height: 8),
                 Text('Créez votre compte pour continuer', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
                 const SizedBox(height: 40),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.blue[800]!),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: Text('Se connecter', style: TextStyle(color: Colors.blue[800], fontSize: 16, fontWeight: FontWeight.bold)),
+                
+                AuthToggleButton(
+                  isLoginActive: false, // S'inscrire est actif
+                  onLoginTapped: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (_, __, ___) => const LoginScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[800],
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: const Text('S\'inscrire', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
+                  onSignupTapped: () {}, // Ne fait rien
                 ),
+
                 const SizedBox(height: 32),
                 Text('Nom et prénom', style: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
@@ -175,13 +162,12 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   children: [
                     InkWell(
-                      onTap: _openCountryPicker, // Appel de la nouvelle fonction
+                      onTap: _openCountryPicker,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                         decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            // NOUVELLE FAÇON D'AFFICHER LE DRAPEAU
                             Text(_selectedCountry.flagEmoji, style: const TextStyle(fontSize: 24)),
                             const SizedBox(width: 8),
                             Text("+${_selectedCountry.phoneCode}"),
@@ -244,7 +230,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleSignup,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[800],
+                      backgroundColor: Colors.blueAccent,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isLoading

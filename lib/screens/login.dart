@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:country_picker/country_picker.dart'; // NOUVEL IMPORT
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:briout/widgets/auth_toggle_button.dart'; // Importer le nouveau widget
 import 'signup.dart';
 import 'otp.dart';
 
@@ -29,11 +30,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isLoading = false;
 
-  // NOUVELLE FONCTION pour ouvrir le sélecteur de pays
+  // Nouvelle fonction pour ouvrir le sélecteur de pays
   void _openCountryPicker() {
     showCountryPicker(
       context: context,
+      showPhoneCode: true,
       countryListTheme: CountryListThemeData(
+        bottomSheetHeight: 500, // Ajuste la hauteur
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20.0),
           topRight: Radius.circular(20.0),
@@ -44,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderSide: BorderSide(
-              color: const Color(0xFF8C98A8).withAlpha(128),
+              color: const Color(0xFF8C98A8).withAlpha(51),
             ),
           ),
         ),
@@ -60,13 +63,15 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleLogin() {
     if (_phoneController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer un numéro de téléphone.")),
+        const SnackBar(
+            content: Text("Veuillez entrer un numéro de téléphone.")),
       );
       return;
     }
 
     setState(() => _isLoading = true);
-    String phoneNumber = "+${_selectedCountry.phoneCode}${_phoneController.text.trim()}";
+    String phoneNumber =
+        "+${_selectedCountry.phoneCode}${_phoneController.text.trim()}";
 
     FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,
@@ -86,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() => _isLoading = false);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => OtpScreen(verificationId: verificationId)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    OtpScreen(verificationId: verificationId)),
           );
         }
       },
@@ -105,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -113,56 +121,56 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-                Text('Akwaba!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                Text('Akwaba!',
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800])),
                 const SizedBox(height: 8),
-                Text('Connectez-vous à votre compte', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                Text('Connectez-vous à votre compte',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600])),
                 const SizedBox(height: 40),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[800],
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: const Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+
+                // NOUVEAUX BOUTONS
+                AuthToggleButton(
+                  isLoginActive: true,
+                  onLoginTapped:
+                      () {}, // Ne fait rien car on est déjà sur la page
+                  onSignupTapped: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (_, __, ___) => const SignupScreen(),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignupScreen()));
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.blue[800]!),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: Text('S\'inscrire', style: TextStyle(color: Colors.blue[800], fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 32),
-                Text('Numéro de téléphone', style: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.bold)),
+                Text('Numéro de téléphone',
+                    style: TextStyle(
+                        color: Colors.grey[800], fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     InkWell(
-                      onTap: _openCountryPicker, // Appel de la nouvelle fonction
+                      onTap: _openCountryPicker,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            // NOUVELLE FAÇON D'AFFICHER LE DRAPEAU
-                            Text(_selectedCountry.flagEmoji, style: const TextStyle(fontSize: 24)),
+                            Text(_selectedCountry.flagEmoji,
+                                style: const TextStyle(fontSize: 24)),
                             const SizedBox(width: 8),
                             Text("+${_selectedCountry.phoneCode}"),
-                            const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                            const Icon(Icons.arrow_drop_down,
+                                color: Colors.grey),
                           ],
                         ),
                       ),
@@ -174,8 +182,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           hintText: '000 000 0000',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
                         ),
                       ),
                     ),
@@ -188,15 +198,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[800],
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Se connecter', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text('Se connecter',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
                               SizedBox(width: 8),
                               Icon(Icons.arrow_forward, color: Colors.white),
                             ],

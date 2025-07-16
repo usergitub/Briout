@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'login.dart'; // Import de l’écran de connexion
+import 'login.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -16,87 +16,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> onboardingData = [
     {
       "image": "assets/images/onboarding1.svg",
-      "title": "Bienvenue sur Briout",
-      "description": "La plateforme santé qui vous connecte à ce dont vous avez besoin."
+      "title": "Acheter des médicaments en ligne",
+      "description": "Choisissez et achetez les médicaments nécessaires sans vous rendre à la pharmacie."
     },
     {
       "image": "assets/images/onboarding2.svg",
-      "title": "Trouvez vos médicaments",
-      "description": "Recherchez et commandez vos produits facilement, où que vous soyez."
+      "title": "Tout en une place",
+      "description": "Télémédecine, commande de médicaments ou de remèdes homéopathiques, tout est là."
     },
     {
       "image": "assets/images/onboarding3.svg",
-      "title": "Gérez votre santé",
-      "description": "Recevez des rappels, suivez vos ordonnances et plus encore."
+      "title": "Livraison rapide à partir de 15 minutes",
+      "description": "Nous livrons vos médicaments rapidement. Les coursiers portent un équipement de protection."
     },
   ];
 
-  void _nextPage() {
-    if (_currentIndex < onboardingData.length) {
-      _controller.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    }
-  }
-
-  Widget _buildIndicator(int index) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: _currentIndex == index ? 12 : 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: _currentIndex == index ? Colors.indigo : Colors.grey,
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-  }
-
-  Widget _onboarding4Widget() {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            'assets/images/onboarding4.svg',
-            height: 250,
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            'Bienvenue à Briout',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.indigo,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            "Notre équipe travaille dur pour ajouter de nouvelles fonctionnalités pour vous aider dans les situations de santé. Restez à l'écoute pour la prochaine mise à jour de Briout.",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+  void _navigateToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    bool showSkipButton = _currentIndex < 2; // "Sauter" visible sur les pages 0 et 1
+    bool isLastPage = _currentIndex == onboardingData.length;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
-        bottom: true,
         child: Column(
           children: [
             Expanded(
@@ -106,69 +55,152 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (index) => setState(() => _currentIndex = index),
                 itemBuilder: (context, index) {
                   if (index < onboardingData.length) {
-                    final data = onboardingData[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            data['image']!,
-                            height: 250,
-                          ),
-                          const SizedBox(height: 40),
-                          Text(
-                            data['title']!,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.indigo,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            data['description']!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black54,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
+                    return _buildOnboardingPage(data: onboardingData[index]);
                   } else {
-                    return _onboarding4Widget();
+                    return _buildOnboardingPage(
+                      isWelcomePage: true,
+                      data: {
+                        "image": "assets/images/onboarding4.svg",
+                        "title": "Bienvenue à Briout",
+                        "description": "Notre équipe travaille dur pour ajouter de nouvelles fonctionnalités. Restez à l'écoute.",
+                      },
+                    );
                   }
                 },
               ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(onboardingData.length + 1, _buildIndicator),
-            ),
-            const SizedBox(height: 20),
+            
+            // Nouvelle disposition du bas
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 10),
-              child: ElevatedButton(
-                onPressed: _nextPage,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.indigo,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                children: [
+                  // Ligne pour les indicateurs, alignés à gauche
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: List.generate(
+                      onboardingData.length + 1,
+                      (index) => _buildIndicator(index),
+                    ),
                   ),
-                ),
-                child: Text(
-                  _currentIndex == onboardingData.length ? "Commencer" : "Suivant",
-                  style: const TextStyle(fontSize: 18, color: Colors.white),
-                ),
+                  const SizedBox(height: 20),
+                  // Ligne pour les boutons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        child: showSkipButton
+                            ? TextButton(
+                                onPressed: _navigateToLogin,
+                                child: const Text(
+                                  "Sauter",
+                                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                                ),
+                              )
+                            : null, // Espace vide pour garder l'alignement
+                      ),
+                      SizedBox(
+                        width: isLastPage ? 140 : 120,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (isLastPage) {
+                              _navigateToLogin();
+                            } else {
+                              _controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeIn,
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                isLastPage ? "Continue" : "Suivant",
+                                style: const TextStyle(fontSize: 16, color: Colors.white),
+                              ),
+                              if (!isLastPage) const SizedBox(width: 8),
+                              if (!isLastPage) const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
+             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+
+  // Page générique pour tous les slides, pour garantir la cohérence
+  Widget _buildOnboardingPage({required Map<String, String> data, bool isWelcomePage = false}) {
+    // Le texte est centré pour la page de bienvenue, sinon à gauche
+    CrossAxisAlignment alignementTexte = isWelcomePage ? CrossAxisAlignment.center : CrossAxisAlignment.start;
+    TextAlign alignementParagraphe = isWelcomePage ? TextAlign.center : TextAlign.left;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: alignementTexte,
+        children: [
+          const Spacer(flex: 2),
+          // Conteneur unifié pour l'image avec ombre portée
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(26), // 10% d'opacité
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ],
+              ),
+              child: SvgPicture.asset(data['image']!, height: 250),
+            ),
+          ),
+          const SizedBox(height: 50),
+          Text(
+            data['title']!,
+            textAlign: alignementParagraphe,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            data['description']!,
+            textAlign: alignementParagraphe,
+            style: const TextStyle(fontSize: 16, color: Colors.black54, height: 1.5),
+          ),
+          const Spacer(flex: 3),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIndicator(int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: _currentIndex == index ? 20 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: _currentIndex == index ? Colors.blueAccent : Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(8),
       ),
     );
   }

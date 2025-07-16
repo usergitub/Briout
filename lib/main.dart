@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Importez FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart'; // FirebaseAuth
 import 'screens/onboarding.dart';
 import 'firebase_options.dart';
 import 'package:briout/main_screen.dart';
